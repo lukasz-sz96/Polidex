@@ -1,10 +1,13 @@
 import secrets
-import hashlib
 from datetime import datetime
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from sqlalchemy.orm import Session
 
 from app.models import APIKey, Space
+
+ph = PasswordHasher()
 
 
 class APIKeyService:
@@ -12,13 +15,20 @@ class APIKeyService:
     KEY_LENGTH = 32
 
     def generate_key(self) -> str:
-        return self.PREFIX + secrets.token_urlsafe(self.KEY_LENGTH)
+        return self.PREFIX + secrets.token_hex(self.KEY_LENGTH)
 
     def hash_key(self, key: str) -> str:
-        return hashlib.sha256(key.encode()).hexdigest()
+        return ph.hash(key)
+
+    def verify_hash(self, key_hash: str, raw_key: str) -> bool:
+        try:
+            ph.verify(key_hash, raw_key)
+            return True
+        except VerifyMismatchError:
+            return False
 
     def get_prefix(self, key: str) -> str:
-        return key[:8]
+        return key[:12]
 
     def create(
         self,
@@ -28,7 +38,7 @@ class APIKeyService:
     ) -> tuple[APIKey, str]:
         space = db.query(Space).filter(Space.id == space_id).first()
         if not space:
-            raise ValueError(f"Space with id {space_id} not found")
+            raise ValueError("Space not found")
 
         raw_key = self.generate_key()
         key_hash = self.hash_key(raw_key)
@@ -47,12 +57,20 @@ class APIKeyService:
         return api_key, raw_key
 
     def verify(self, db: Session, raw_key: str) -> APIKey | None:
-        key_hash = self.hash_key(raw_key)
-        api_key = db.query(APIKey).filter(
-            APIKey.key_hash == key_hash,
+        key_prefix = self.get_prefix(raw_key)
+        candidates = db.query(APIKey).filter(
+            APIKey.key_prefix == key_prefix,
             APIKey.is_active == True,
-        ).first()
-        return api_key
+        ).all()
+
+        for api_key in candidates:
+            if self.verify_hash(api_key.key_hash, raw_key):
+                if ph.check_needs_rehash(api_key.key_hash):
+                    api_key.key_hash = self.hash_key(raw_key)
+                    db.commit()
+                return api_key
+
+        return None
 
     def update_usage(self, db: Session, api_key: APIKey) -> None:
         api_key.request_count += 1

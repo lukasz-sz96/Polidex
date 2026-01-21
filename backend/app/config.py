@@ -5,6 +5,7 @@ from pathlib import Path
 class Settings(BaseSettings):
     openrouter_api_key: str = ""
     secret_key: str = "dev-secret-key-change-in-production"
+    admin_token: str = ""
     database_url: str = "sqlite:///./data/polidex.db"
     chroma_persist_dir: str = "./data/chroma"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
@@ -13,6 +14,8 @@ class Settings(BaseSettings):
     chunk_size: int = 1000
     chunk_overlap: int = 200
     top_k_results: int = 5
+    max_file_size: int = 50 * 1024 * 1024
+    rate_limit: str = "60/minute"
 
     class Config:
         env_file = ".env"

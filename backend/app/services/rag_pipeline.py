@@ -93,6 +93,7 @@ class RAGPipeline:
         space_id: int,
         top_k: int = 5,
         model: str | None = None,
+        system_prompt: str | None = None,
     ) -> RAGResponse:
         query_embedding = embedding_service.embed(query_text)
 
@@ -140,6 +141,7 @@ class RAGPipeline:
             query=query_text,
             context_chunks=context_chunks,
             model=model,
+            custom_system_prompt=system_prompt,
         )
 
         return RAGResponse(

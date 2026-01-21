@@ -1,10 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SpaceCreate(BaseModel):
-    name: str
-    description: str | None = None
+    name: str = Field(..., min_length=1, max_length=255)
+    description: str | None = Field(None, max_length=500)
 
 
 class SpaceResponse(BaseModel):
@@ -68,9 +68,9 @@ class UploadResponse(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    query: str
-    space_id: int
-    top_k: int = 5
+    query: str = Field(..., min_length=1, max_length=10000)
+    space_id: int = Field(..., gt=0)
+    top_k: int = Field(default=5, ge=1, le=50)
 
 
 class ChatResponse(BaseModel):
@@ -79,8 +79,9 @@ class ChatResponse(BaseModel):
 
 
 class ExternalQueryRequest(BaseModel):
-    query: str
-    top_k: int = 5
+    query: str = Field(..., min_length=1, max_length=10000)
+    top_k: int = Field(default=5, ge=1, le=50)
+    system_prompt: str | None = Field(None, max_length=2000)
 
 
 class ExternalQueryResponse(BaseModel):
@@ -89,8 +90,8 @@ class ExternalQueryResponse(BaseModel):
 
 
 class APIKeyCreate(BaseModel):
-    name: str
-    space_id: int
+    name: str = Field(..., min_length=1, max_length=255)
+    space_id: int = Field(..., gt=0)
 
 
 class APIKeyResponse(BaseModel):

@@ -22,6 +22,7 @@ async def external_query(
             query_text=request.query,
             space_id=api_key.space_id,
             top_k=request.top_k,
+            system_prompt=request.system_prompt,
         )
         latency_ms = get_latency()
 

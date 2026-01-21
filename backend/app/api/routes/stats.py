@@ -5,14 +5,16 @@ from sqlalchemy import func
 from app.api.schemas import QueryLogResponse, QueryLogListResponse, StatsResponse
 from app.models import get_db, QueryLog, Document, Chunk, Space
 from app.services.query_logger import query_logger
+from app.core.auth import require_admin
 
 router = APIRouter()
 
 
 @router.get("/logs", response_model=QueryLogListResponse)
 async def get_query_logs(
-    limit: int = Query(100, le=500),
+    limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_admin),
 ):
     logs = query_logger.get_recent(db, limit=limit)
     return QueryLogListResponse(
@@ -22,7 +24,10 @@ async def get_query_logs(
 
 
 @router.get("/overview", response_model=StatsResponse)
-async def get_stats(db: Session = Depends(get_db)):
+async def get_stats(
+    db: Session = Depends(get_db),
+    _: bool = Depends(require_admin),
+):
     query_stats = query_logger.get_stats(db)
 
     total_documents = db.query(func.count(Document.id)).scalar() or 0
