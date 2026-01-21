@@ -26,4 +26,4 @@ class Space(Base):
         secondary=document_spaces,
         back_populates="spaces",
     )
-    api_keys: Mapped[list["APIKey"]] = relationship("APIKey", back_populates="space")
+    api_keys: Mapped[list["APIKey"]] = relationship("APIKey", back_populates="space", cascade="all, delete-orphan")
