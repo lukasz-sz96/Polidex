@@ -8,6 +8,7 @@ from app.api.schemas import DocumentResponse, DocumentListResponse, UploadRespon
 from app.config import UPLOAD_DIR
 from app.models import get_db, Document, Space
 from app.services.document_processor import document_processor
+from app.services.rag_pipeline import rag_pipeline
 
 router = APIRouter()
 
@@ -60,13 +61,15 @@ async def upload_document(
     db.commit()
     db.refresh(document)
 
+    chunk_count = rag_pipeline.process_document(document, db)
+
     return UploadResponse(
         id=document.id,
         filename=document.filename,
         file_type=document.file_type,
         file_size=document.file_size,
         space_ids=[s.id for s in document.spaces],
-        message="Document uploaded successfully. Processing pending.",
+        message=f"Document uploaded and processed. {chunk_count} chunks created.",
     )
 
 
@@ -135,11 +138,25 @@ async def remove_document_from_space(
     return {"message": f"Document removed from space '{space.name}'"}
 
 
+@router.post("/{document_id}/reprocess")
+async def reprocess_document(document_id: int, db: Session = Depends(get_db)):
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    rag_pipeline.delete_document_chunks(document, db)
+    chunk_count = rag_pipeline.process_document(document, db)
+
+    return {"message": f"Document reprocessed. {chunk_count} chunks created."}
+
+
 @router.delete("/{document_id}")
 async def delete_document(document_id: int, db: Session = Depends(get_db)):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    rag_pipeline.delete_document_chunks(document, db)
 
     file_path = Path(document.file_path)
     if file_path.exists():
