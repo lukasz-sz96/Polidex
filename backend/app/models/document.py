@@ -3,6 +3,7 @@ from sqlalchemy import String, DateTime, Integer, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.database import Base
+from app.models.space import document_spaces
 
 
 class Document(Base):
@@ -19,6 +20,11 @@ class Document(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     chunks: Mapped[list["Chunk"]] = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
+    spaces: Mapped[list["Space"]] = relationship(
+        "Space",
+        secondary=document_spaces,
+        back_populates="documents",
+    )
 
 
 class Chunk(Base):

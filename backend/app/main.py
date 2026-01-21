@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import documents, chat, query, api_keys
+from app.api.routes import documents, chat, query, api_keys, spaces
 from app.models import init_db
 
 
@@ -28,6 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(spaces.router, prefix="/api/spaces", tags=["spaces"])
 app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(query.router, prefix="/api/v1", tags=["external"])
