@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
+import ReactMarkdown from 'react-markdown'
 import { Send, Bot, User, FileText, Loader2 } from 'lucide-react'
 import { chatAPI, spacesAPI } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -161,7 +162,9 @@ function MessageBubble({ message }: { message: Message }) {
               : 'glass-panel text-slate-200 rounded-tl-sm'
           )}
         >
-          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+          <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-amber-400">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
         </div>
 
         {message.sources && message.sources.length > 0 && (

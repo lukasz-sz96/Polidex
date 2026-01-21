@@ -9,8 +9,8 @@ services:
     volumes:
       - backend-data:/app/data
       - backend-uploads:/app/data/uploads
-    expose:
-      - "8000"
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     container_name: polidex-frontend
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
     restart: unless-stopped
