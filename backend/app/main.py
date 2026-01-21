@@ -1,9 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import documents, chat, query, api_keys
+from app.models import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="Polidex RAG API",
     description="RAG Admin System for managing knowledge base documents",
     version="0.1.0",
