@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir uv && \
     uv pip install --system -e .
 
 COPY app ./app
+COPY seed_data ./seed_data
 
 RUN mkdir -p /app/data/chroma /app/data/uploads
 

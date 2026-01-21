@@ -11,6 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.api.routes import documents, chat, query, api_keys, spaces, stats
 from app.models import init_db
 from app.config import settings
+from app.services.seed import seed_database
 
 limiter = Limiter(key_func=get_remote_address, default_limits=[settings.rate_limit])
 
@@ -28,6 +29,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    seed_database()
     yield
 
 
