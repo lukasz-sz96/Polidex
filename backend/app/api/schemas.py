@@ -115,3 +115,31 @@ class APIKeyCreateResponse(BaseModel):
 
 class APIKeyListResponse(BaseModel):
     api_keys: list[APIKeyResponse]
+
+
+class QueryLogResponse(BaseModel):
+    id: int
+    query_text: str
+    response_text: str
+    chunks_retrieved: int
+    latency_ms: float
+    model_used: str
+    source: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class QueryLogListResponse(BaseModel):
+    logs: list[QueryLogResponse]
+    total: int
+
+
+class StatsResponse(BaseModel):
+    total_queries: int
+    avg_latency_ms: float
+    avg_chunks_retrieved: float
+    total_documents: int
+    total_chunks: int
+    total_spaces: int

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.api.schemas import ChatRequest, ChatResponse
 from app.models import get_db, Space
 from app.services.rag_pipeline import rag_pipeline
+from app.services.query_logger import query_logger
 
 router = APIRouter()
 
@@ -14,10 +15,22 @@ async def query_chat(request: ChatRequest, db: Session = Depends(get_db)):
     if not space:
         raise HTTPException(status_code=404, detail="Space not found")
 
-    result = await rag_pipeline.query(
+    with query_logger.timer() as get_latency:
+        result = await rag_pipeline.query(
+            query_text=request.query,
+            space_id=request.space_id,
+            top_k=request.top_k,
+        )
+        latency_ms = get_latency()
+
+    query_logger.log(
+        db=db,
         query_text=request.query,
-        space_id=request.space_id,
-        top_k=request.top_k,
+        response_text=result.answer,
+        chunks_retrieved=result.chunks_retrieved,
+        latency_ms=latency_ms,
+        model_used=result.model,
+        source="admin_chat",
     )
 
     sources = [
