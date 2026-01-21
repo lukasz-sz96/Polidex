@@ -8,7 +8,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
+RUN ls -la src/lib/ && cat vite.config.ts && npm run build
 
 FROM nginx:alpine
 
