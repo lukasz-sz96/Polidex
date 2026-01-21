@@ -98,12 +98,12 @@ class RAGPipeline:
 
         results = vector_store.query(
             query_embedding=query_embedding,
-            n_results=top_k,
-            where={"space_ids": {"$contains": str(space_id)}},
+            n_results=top_k * 3,
         )
 
         sources = []
         context_chunks = []
+        space_id_str = str(space_id)
 
         if results["documents"] and results["documents"][0]:
             documents = results["documents"][0]
@@ -111,6 +111,13 @@ class RAGPipeline:
             distances = results["distances"][0]
 
             for doc, meta, dist in zip(documents, metadatas, distances):
+                space_ids_list = meta["space_ids"].split(",")
+                if space_id_str not in space_ids_list:
+                    continue
+
+                if len(sources) >= top_k:
+                    break
+
                 score = 1 - dist
                 sources.append(Source(
                     document_id=meta["document_id"],
