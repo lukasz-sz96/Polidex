@@ -33,6 +33,7 @@ ENV/
 *.swo
 *.md
 !README.md
+!backend/seed_data/*.md
 
 # Environment variables
 .env
