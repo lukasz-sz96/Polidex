@@ -155,4 +155,4 @@ polidex/
 
 ## License
 
-MIT
+GPL v3
