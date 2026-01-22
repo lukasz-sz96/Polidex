@@ -22,6 +22,9 @@ class QueryLogger:
         model_used: str,
         source: str,
         api_key_id: int | None = None,
+        prompt_tokens: int = 0,
+        completion_tokens: int = 0,
+        cost: float = 0.0,
     ) -> QueryLog:
         log_entry = QueryLog(
             api_key_id=api_key_id,
@@ -31,6 +34,9 @@ class QueryLogger:
             latency_ms=latency_ms,
             model_used=model_used,
             source=source,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            cost=cost,
         )
         db.add(log_entry)
         db.commit()

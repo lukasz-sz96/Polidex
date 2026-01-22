@@ -6,6 +6,7 @@ import { Spaces } from '@/pages/Spaces'
 import { Documents } from '@/pages/Documents'
 import { Chat } from '@/pages/Chat'
 import { ApiKeys } from '@/pages/ApiKeys'
+import { Usage } from '@/pages/Usage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,7 @@ function App() {
             <Route path="documents" element={<Documents />} />
             <Route path="chat" element={<Chat />} />
             <Route path="api-keys" element={<ApiKeys />} />
+            <Route path="usage" element={<Usage />} />
           </Route>
         </Routes>
       </BrowserRouter>

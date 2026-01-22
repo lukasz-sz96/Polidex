@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { FileText, MessageSquare, Key, LayoutDashboard, Layers, LogOut, Lock } from 'lucide-react'
+import { FileText, MessageSquare, Key, LayoutDashboard, Layers, LogOut, Lock, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getAdminToken, setAdminToken, clearAdminToken } from '@/lib/api'
 
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/documents', icon: FileText, label: 'Documents' },
   { to: '/chat', icon: MessageSquare, label: 'Test Chat' },
   { to: '/api-keys', icon: Key, label: 'API Keys' },
+  { to: '/usage', icon: Activity, label: 'Usage' },
 ]
 
 export function Layout() {

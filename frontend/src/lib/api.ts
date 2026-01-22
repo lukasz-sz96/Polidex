@@ -1,4 +1,4 @@
-import type { Space, SpaceDetail, Document, APIKey, Stats, QueryLog, ChatResponse } from '@/types/api'
+import type { Space, SpaceDetail, Document, APIKey, Stats, QueryLog, ChatResponse, UsageData } from '@/types/api'
 
 const BASE_URL = '/api'
 const TOKEN_KEY = 'polidex_admin_token'
@@ -104,6 +104,10 @@ export const apiKeysAPI = {
 export const statsAPI = {
   overview: () => fetchAPI<Stats>('/stats/overview'),
   logs: (limit = 100) => fetchAPI<{ logs: QueryLog[]; total: number }>(`/stats/logs?limit=${limit}`),
+}
+
+export const usageAPI = {
+  get: (limit = 100, offset = 0) => fetchAPI<UsageData>(`/stats/usage?limit=${limit}&offset=${offset}`),
 }
 
 export const chatAPI = {

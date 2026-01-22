@@ -41,6 +41,9 @@ async def query_chat(
         latency_ms=latency_ms,
         model_used=result.model,
         source="admin_chat",
+        prompt_tokens=result.prompt_tokens,
+        completion_tokens=result.completion_tokens,
+        cost=result.cost,
     )
 
     sources = [

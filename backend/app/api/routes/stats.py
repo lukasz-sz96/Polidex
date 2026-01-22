@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from app.api.schemas import QueryLogResponse, QueryLogListResponse, StatsResponse
+from app.api.schemas import QueryLogResponse, QueryLogListResponse, StatsResponse, UsageResponse, UsageLogResponse
 from app.models import get_db, QueryLog, Document, Chunk, Space
 from app.services.query_logger import query_logger
 from app.core.auth import require_admin
@@ -41,4 +41,33 @@ async def get_stats(
         total_documents=total_documents,
         total_chunks=total_chunks,
         total_spaces=total_spaces,
+    )
+
+
+@router.get("/usage", response_model=UsageResponse)
+async def get_usage(
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    _: bool = Depends(require_admin),
+):
+    total_cost = db.query(func.sum(QueryLog.cost)).scalar() or 0.0
+    total_prompt_tokens = db.query(func.sum(QueryLog.prompt_tokens)).scalar() or 0
+    total_completion_tokens = db.query(func.sum(QueryLog.completion_tokens)).scalar() or 0
+    total_requests = db.query(func.count(QueryLog.id)).scalar() or 0
+
+    logs = (
+        db.query(QueryLog)
+        .order_by(QueryLog.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    return UsageResponse(
+        total_cost=round(total_cost, 6),
+        total_prompt_tokens=total_prompt_tokens,
+        total_completion_tokens=total_completion_tokens,
+        total_requests=total_requests,
+        logs=[UsageLogResponse.model_validate(log) for log in logs],
     )

@@ -27,6 +27,9 @@ class RAGResponse:
     sources: list[Source]
     model: str
     chunks_retrieved: int
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    cost: float = 0.0
 
 
 class RAGPipeline:
@@ -144,11 +147,15 @@ class RAGPipeline:
             custom_system_prompt=system_prompt,
         )
 
+        usage = response.usage
         return RAGResponse(
             answer=response.content,
             sources=sources,
             model=response.model,
             chunks_retrieved=len(sources),
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+            cost=usage.get("total_cost", 0.0) or usage.get("cost", 0.0),
         )
 
 

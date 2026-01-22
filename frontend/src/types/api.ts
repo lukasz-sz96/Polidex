@@ -41,7 +41,30 @@ export interface QueryLog {
   latency_ms: number
   model_used: string
   source: string
+  prompt_tokens: number
+  completion_tokens: number
+  cost: number
   created_at: string
+}
+
+export interface UsageLog {
+  id: number
+  query_text: string
+  response_text: string
+  model_used: string
+  prompt_tokens: number
+  completion_tokens: number
+  cost: number
+  source: string
+  created_at: string
+}
+
+export interface UsageData {
+  total_cost: number
+  total_prompt_tokens: number
+  total_completion_tokens: number
+  total_requests: number
+  logs: UsageLog[]
 }
 
 export interface Stats {

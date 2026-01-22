@@ -37,6 +37,9 @@ async def external_query(
         model_used=result.model,
         source="external_api",
         api_key_id=api_key.id,
+        prompt_tokens=result.prompt_tokens,
+        completion_tokens=result.completion_tokens,
+        cost=result.cost,
     )
 
     sources = [
